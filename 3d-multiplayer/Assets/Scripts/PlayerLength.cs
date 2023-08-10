@@ -23,7 +23,7 @@ public class PlayerLength : NetworkBehaviour
 
     //called by the server
     [ContextMenu("Add Length")]
-    private void AddLength()
+    public void AddLength()
     {
         length.Value += 1;
         InstantiateTail();
@@ -35,8 +35,14 @@ public class PlayerLength : NetworkBehaviour
         _tails = new List<GameObject>();
         _lastTail = transform; //the head
         _collider = GetComponent<CapsuleCollider>();
+        if (!IsServer) length.OnValueChanged += LengthChanged; //for clients to know length has changed
     }
 
+    private void LengthChanged(ushort previousValue, ushort newValue)
+    {
+        Debug.Log("LengthChanged Callback");
+        InstantiateTail();
+    }
     private void InstantiateTail()
     {
         GameObject tailGameObject = Instantiate(tailPrefab, transform.position, Quaternion.identity);
